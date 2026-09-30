@@ -1,0 +1,41 @@
+name: Post internships
+
+on:
+  schedule:
+    - cron: '0 6,14 * * *'   # twice a day (UTC). Change here if you want a different rhythm.
+  workflow_dispatch:          # lets you run it manually from the Actions tab
+
+permissions:
+  contents: write             # needed to commit seen.json
+
+concurrency:
+  group: internships
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm install --no-audit --no-fund
+
+      - name: Fetch and post internships
+        run: node internships.js
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          FRANCE_TRAVAIL_CLIENT_ID: ${{ secrets.FRANCE_TRAVAIL_CLIENT_ID }}
+          FRANCE_TRAVAIL_CLIENT_SECRET: ${{ secrets.FRANCE_TRAVAIL_CLIENT_SECRET }}
+          JOOBLE_API_KEY: ${{ secrets.JOOBLE_API_KEY }}
+
+      - name: Save the list of already-posted offers
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add seen.json || true
+          git diff --staged --quiet || (git commit -m "update seen offers" && git push)

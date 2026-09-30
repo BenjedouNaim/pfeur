@@ -1,0 +1,17 @@
+{
+  "name": "internship-bot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Posts new internships (Tunisia + France) to a Discord channel via webhook",
+  "main": "internships.js",
+  "scripts": {
+    "start": "node --env-file=.env internships.js",
+    "dry": "node --env-file=.env internships.js --dry"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "rss-parser": "^3.13.0"
+  }
+}
